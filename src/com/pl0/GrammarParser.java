@@ -35,6 +35,7 @@ public class GrammarParser {
     private final ArrayList<Declaration> declarations; //声明表，即为Table
     private final ArrayList<String> errors; //语法错误列表
     private final ArrayList<Code> codes; //目标代码列表
+    private Token token;
     private String SYM;
     private String ID;
     private int NUM;
@@ -89,7 +90,7 @@ public class GrammarParser {
     public void pl0() {
         getToken();
         block(0, ArrayUtils.addAll(declBegSys, ArrayUtils.addAll(statBegSys, "period".split("@"))));
-        if (!SYM.equals("period")) errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(9)); //主程序分析结束，应遇到表明程序结束的句号
+        if (!SYM.equals("period")) errors.add(token.getROW() + ": "+Error.log(9)); //主程序分析结束，应遇到表明程序结束的句号
         Declaration declaration0 = declarations.get(0);
         declaration0.setName("main");
         declaration0.setKind("procedureSym");
@@ -120,7 +121,7 @@ public class GrammarParser {
         declaration.setAddress(codes.size());
         gen("JMP", 0, 0); //产生一行跳转指令，跳转位置暂时未知填0
         if (level > levelMax) { //如果当前过程嵌套层数大于最大允许的套层数
-            errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(32));
+            errors.add(token.getROW() + ": "+Error.log(32));
         }
         do {
             if (SYM.equals("constSym")) { //token是const保留字，开始进行常量声明
@@ -134,7 +135,7 @@ public class GrammarParser {
                     if (SYM.equals("semicolon")) { //如果常量声明结束，应遇到分号
                         getToken();
                     } else {
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(5)); //漏掉了.或;
+                        errors.add(token.getROW() + ": "+Error.log(5)); //漏掉了.或;
                     }
                 }
             }
@@ -149,7 +150,7 @@ public class GrammarParser {
                     if (SYM.equals("semicolon")) { //如果常量声明结束，应遇到分号
                         getToken();
                     } else {
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(5)); //漏掉了.或;
+                        errors.add(token.getROW() + ": "+Error.log(5)); //漏掉了.或;
                     }
                 }
             }
@@ -159,12 +160,12 @@ public class GrammarParser {
                     enter(level, DX, "procedureSym"); //将该过程登录到声明表中
                     getToken(); //获取下一个token，正常情况应为分号
                 } else {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(4)); //应是标识符
+                    errors.add(token.getROW() + ": "+Error.log(4)); //应是标识符
                 }
                 if (SYM.equals("semicolon")) { //如果常量声明结束，应遇到分号
                     getToken();
                 } else {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(5)); //漏掉了.或;
+                    errors.add(token.getROW() + ": "+Error.log(5)); //漏掉了.或;
                 }
                 //递归调用语法分析过程，当前层次加一，同时传递合法单词符
                 block(level + 1, ArrayUtils.addAll(FSys, "semicolon".split("@")));
@@ -172,7 +173,7 @@ public class GrammarParser {
                     getToken();
                     test(ArrayUtils.addAll(statBegSys, identBegSys), FSys, 6);
                 } else {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(5)); //漏掉了.或;
+                    errors.add(token.getROW() + ": "+Error.log(5)); //漏掉了.或;
                 }
             }
         } while (Arrays.asList(declBegSys).contains(SYM));
@@ -212,17 +213,17 @@ public class GrammarParser {
         switch (SYM) {
             case "identifier" -> { //赋值语句
                 i = position(ID); //在声明表中查到该标识符所在位置
-                if (i == 0) errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(11)); //标识符未说明
+                if (i == 0) errors.add(token.getROW() + ": "+Error.log(11)); //标识符未说明
                 else {
                     declaration = declarations.get(i);
                     if (!declaration.getKind().equals("varSym")) { //如果在声明表中找到该标识符，但该标识符不是变量名
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(12)); //赋值语句中，赋值号左部标识符属性应是变量
+                        errors.add(token.getROW() + ": "+Error.log(12)); //赋值语句中，赋值号左部标识符属性应是变量
                         i = 0; //i置0作为错误标志
                     }
                 }
                 getToken(); //获得下一个token，正常应为赋值号
                 if (SYM.equals("becomes")) getToken();
-                else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(13)); //赋值语句左部标识符后应是赋值号:=
+                else errors.add(token.getROW() + ": "+Error.log(13)); //赋值语句左部标识符后应是赋值号:=
                 expression(level, FSys);
                 if (i != 0) { //如果不曾出错，i将不为0，i所指为当前语名左部标识符在符号表中的位置
                     gen("STO", level - declaration.getLevel(), declaration.getAddress()); //产生一行把表达式值写往指定内存的STO目标代码
@@ -231,7 +232,7 @@ public class GrammarParser {
             case "readSym" -> { //read语句
                 getToken(); //获得下一token，正常情况下应为左括号
                 if (!SYM.equals("lparen")) {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(34)); //read保留字后应接(
+                    errors.add(token.getROW() + ": "+Error.log(34)); //read保留字后应接(
                 } else {
                     do {
                         getToken(); //获得下一个token，正常应是一个变量名
@@ -241,8 +242,8 @@ public class GrammarParser {
                             if (i != 0 && !declaration.getKind().equals("varSym")) i = -1;
                         } else i = 0; //不是标识符则有问题，i置0作为出错标志
 
-                        if (i == -1) errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(35)); //read语句中标识符应为变量
-                        else if (i == 0) errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(36)); //read语句括号中应接变量标识符
+                        if (i == -1) errors.add(token.getROW() + ": "+Error.log(35)); //read语句中标识符应为变量
+                        else if (i == 0) errors.add(token.getROW() + ": "+Error.log(36)); //read语句括号中应接变量标识符
                         else {
                             gen("OPR", 0, 16); //生成16号操作指令:从键盘读入数字
                             //生成sto指令，把读入的值存入指定变量所在的空间
@@ -251,7 +252,7 @@ public class GrammarParser {
                         getToken();
                     } while (SYM.equals("comma"));
                     if (!SYM.equals("rparen")) {
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(33)); //read语句的后跟符应为)
+                        errors.add(token.getROW() + ": "+Error.log(33)); //read语句的后跟符应为)
                         while (!Arrays.asList(FSys).contains(SYM)) getToken(); //依靠FSys集，找到下一个合法的token，恢复语法分析
                     } else getToken(); //如果read语句正常结束，得到下一个token，一般为分号或end
                 }
@@ -259,7 +260,7 @@ public class GrammarParser {
             case "writeSym" -> { //write语句
                 getToken(); //获得下一token，正常情况下应为左括号
                 if (!SYM.equals("lparen")) {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(34)); //write保留字后应接(
+                    errors.add(token.getROW() + ": "+Error.log(34)); //write保留字后应接(
                 } else {
                     do {
                         getToken(); //获得下一个token，正常应是一个标识符
@@ -267,7 +268,7 @@ public class GrammarParser {
                         gen("OPR", 0, 14); //生成14号指令：向屏幕输出
                     } while (SYM.equals("comma"));
                     if (!SYM.equals("rparen")) {
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(33)); //read语句的后跟符应为)
+                        errors.add(token.getROW() + ": "+Error.log(33)); //read语句的后跟符应为)
                         while (!Arrays.asList(FSys).contains(SYM)) getToken(); //依靠FSys集，找到下一个合法的token，恢复语法分析
                     } else getToken(); //如果read语句正常结束，得到下一个token，一般为分号或end
                 }
@@ -278,14 +279,14 @@ public class GrammarParser {
                 if (SYM.equals("identifier")) {
                     i = position(ID); //查符号表，找到它所在位置给i，找不到时i会为0
                     declaration = declarations.get(i);
-                    if (i == 0) errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(11)); //标识符未说明
+                    if (i == 0) errors.add(token.getROW() + ": "+Error.log(11)); //标识符未说明
                     else {
                         if (declaration.getKind().equals("procedureSym"))
                             gen("CAL", level - declaration.getLevel(), declaration.getAddress());
-                        else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(15)); //call后标识符属性应为过程
+                        else errors.add(token.getROW() + ": "+Error.log(15)); //call后标识符属性应为过程
                     }
                     getToken();
-                } else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(14)); //call后应为标识符
+                } else errors.add(token.getROW() + ": "+Error.log(14)); //call后应为标识符
             }
             case "ifSym" -> { //if语句
                 getToken(); //获得下一token，正常情况下应为逻辑表达式
@@ -294,7 +295,7 @@ public class GrammarParser {
 
                 if (SYM.equals("thenSym")) { //表达式后应遇到then语句
                     getToken(); ////获得下一token，正常情况下应为语句
-                } else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(16)); //条件语句中丢了then
+                } else errors.add(token.getROW() + ": "+Error.log(16)); //条件语句中丢了then
                 CX1 = codes.size(); //记下当前代码分配指针位置
 
                 gen("JPC", 0, 0); //生成条件跳转指令，跳转位置暂时填0，分析完语句后再填写
@@ -309,13 +310,13 @@ public class GrammarParser {
                 statement(level, FSys); //分析begin后的语句
                 while (Arrays.asList(ArrayUtils.addAll(statBegSys, "semicolon".split("@"))).contains(SYM)) {
                     if (SYM.equals("semicolon")) getToken(); //如果语句是分号（可能是空语句）
-                    else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(10)); //语句之间漏了;
+                    else errors.add(token.getROW() + ": "+Error.log(10)); //语句之间漏了;
                     statement(level, FSys);
                 }
                 if (SYM.equals("endSym")) { //如果语句全分析完了，应该遇到end
                     getToken();
                 } else {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(17)); //丢了end或;
+                    errors.add(token.getROW() + ": "+Error.log(17)); //丢了end或;
                 }
             }
             case "whileSym" -> { //while语句
@@ -331,7 +332,7 @@ public class GrammarParser {
 
                 if (SYM.equals("doSym")) { //表达式后应为do语句
                     getToken(); ////获得下一token，正常情况下应为语句
-                } else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(18)); //while型循环语句中丢了do
+                } else errors.add(token.getROW() + ": "+Error.log(18)); //while型循环语句中丢了do
                 statement(level, FSys); //分析do后的语句
 
                 gen("JMP", 0, CX1); //循环跳转到CX1位置，即再次进行逻辑判断
@@ -392,7 +393,7 @@ public class GrammarParser {
         } else { //不是odd运算符，定是二元逻辑运算符
             expression(level, ArrayUtils.addAll(FSys, condBegSys)); //对表达式左部进行处理计算
             if (!Arrays.asList(condBegSys).contains(SYM)) { //token不是关系运算符
-                errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(20)); //应为关系运算符
+                errors.add(token.getROW() + ": "+Error.log(20)); //应为关系运算符
             } else {
                 relOp = SYM; //保存当前的关系运算符
                 getToken();
@@ -447,20 +448,20 @@ public class GrammarParser {
                 case "identifier" -> { //遇到的是标识符
                     i = position(ID); //查声明表，找到当前标识符在声明表中的位置
                     if (i == 0) { //如果查声明表返回为0，表示没有找到标识符
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(11)); //标识符未说明
+                        errors.add(token.getROW() + ": "+Error.log(11)); //标识符未说明
                     } else {
                         Declaration declaration = declarations.get(i);
                         switch (declaration.getKind()) {
                             case "constSym" -> gen("LIT", 0, declaration.getValue()); //生成LIT指令，将常量值放到栈顶
                             case "varSym" -> gen("LOD", level - declaration.getLevel(), declaration.getAddress()); //吧位于距离当前层level的层的偏移地址为a的变量放到栈顶
-                            case "procedureSym" -> errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(21)); //表达式内标识符属性不能是过程
+                            case "procedureSym" -> errors.add(token.getROW() + ": "+Error.log(21)); //表达式内标识符属性不能是过程
                         }
                     }
                     getToken();
                 }
                 case "number" -> { //遇到的是数字
                     if (NUM > NumMAx) {
-                        errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(31)); //数越界
+                        errors.add(token.getROW() + ": "+Error.log(31)); //数越界
                         NUM = 0; //将数字按0值处理
                     }
                     gen("LIT", 0, NUM); //生成LIT指令，将NUM放到栈顶
@@ -471,7 +472,7 @@ public class GrammarParser {
                     expression(level, ArrayUtils.addAll(FSys, "rparen".split("@"))); //递归调用expression子程序分析子表达式
                     if (SYM.equals("rparen")) { //子表达式分析完后，应遇到右括号
                         getToken();
-                    } else errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(22)); //表达式中漏掉右括号)
+                    } else errors.add(token.getROW() + ": "+Error.log(22)); //表达式中漏掉右括号)
                 }
             }
         }
@@ -491,20 +492,20 @@ public class GrammarParser {
             getToken();
             if (SYM.equals("eql") || SYM.equals("becomes")) {
                 if (SYM.equals("becomes")) { //如果是赋值号(常量生明中应该是等号
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(1)); //常数说明中的=写成:=
+                    errors.add(token.getROW() + ": "+Error.log(1)); //常数说明中的=写成:=
                 }
                 getToken();
                 if (SYM.equals("number")) {
                     dx = enter(level, dx, "constSym");
                     getToken();
                 } else {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(2)); //常数说明中的=后应是数字
+                    errors.add(token.getROW() + ": "+Error.log(2)); //常数说明中的=后应是数字
                 }
             } else {
-                errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(3)); //常数说明中的标识符后应是=
+                errors.add(token.getROW() + ": "+Error.log(3)); //常数说明中的标识符后应是=
             }
         } else {
-            errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(4)); //应是标识符
+            errors.add(token.getROW() + ": "+Error.log(4)); //应是标识符
         }
         return dx;
     }
@@ -521,7 +522,7 @@ public class GrammarParser {
             dx = enter(level, dx, "varSym");
             getToken();
         } else {
-            errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(4)); //应是标识符
+            errors.add(token.getROW() + ": "+Error.log(4)); //应是标识符
         }
         return dx;
     }
@@ -688,7 +689,7 @@ public class GrammarParser {
         switch (sym) {
             case "constSym" -> {
                 if (NUM > NumMAx) {
-                    errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(31)); //数越界
+                    errors.add(token.getROW() + ": "+Error.log(31)); //数越界
                     NUM = 0;
                 }
                 declaration.setValue(NUM);
@@ -727,7 +728,7 @@ public class GrammarParser {
      */
     private void test(String[] s1, String[] s2, Integer n) {
         if (!Arrays.asList(s1).contains(SYM)) { //当前符号不在s1中
-            errors.add((lexicalAnalyzer.getLL() + 1) + ": "+Error.log(n));
+            errors.add(token.getROW() + ": "+Error.log(n));
             s1 = ArrayUtils.addAll(s1, s2); //把s2集合补充进s1集合
             while (!Arrays.asList(s1).contains(SYM)) getToken(); //通过循环找到下一个合法的符号，以恢复语法分析工作
         }
@@ -770,9 +771,8 @@ public class GrammarParser {
      * eg: a := 10 当读取到10时，SYM = "number", ID = "a", NUM = 10,可简化enter()
      */
     private void getToken() {
-        Token token = lexicalAnalyzer.getSym();
+        token = lexicalAnalyzer.getSym();
         tokens.add(token);
-        System.out.println(token);
         if (token.getSYM() != null) SYM = token.getSYM();
         if (token.getID() != null) ID = token.getID();
         if (token.getNUM() != null) NUM = token.getNUM();

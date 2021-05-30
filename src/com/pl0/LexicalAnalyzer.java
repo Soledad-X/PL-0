@@ -64,10 +64,6 @@ public class LexicalAnalyzer {
         WORD.put(".", "period");
     }
 
-    public int getLL() {
-        return LL;
-    }
-
     /**
      * 获取单词
      *
@@ -89,22 +85,22 @@ public class LexicalAnalyzer {
             String ID = A.toString();
             if (WORD.containsKey(ID)) { //ID为保留字
                 // 相应保留字类型送SYM
-                return new Token(WORD.get(ID));
+                return new Token(LL + 1, WORD.get(ID));
             } else { //ID为标识符
-                return new Token("identifier", ID);
+                return new Token(LL + 1, "identifier", ID);
             }
         } else { //首字符不为字母
             if (Character.isDigit(CH)) { //首字符为数字
                 int K = 0;
                 int NUM = 0;
-                do{
-                    if(K < numMax){
+                do {
+                    if (K < numMax) {
                         K++;
                         NUM = NUM * 10 + Character.getNumericValue(CH);
                     }
                     getCh();
-                }while (Character.isDigit(CH));
-                return new Token("number", NUM);
+                } while (Character.isDigit(CH));
+                return new Token(LL + 1, "number", NUM);
             } else { //首字符不为数字
                 if (CH == ':' || CH == '<' || CH == '>') {
                     StringBuilder A = new StringBuilder();
@@ -113,22 +109,22 @@ public class LexicalAnalyzer {
                     if (CH == '=') {
                         A.append(CH);
                         getCh();
-                        return new Token(WORD.get(A.toString()));
+                        return new Token(LL + 1, WORD.get(A.toString()));
                     } else if (A.toString().equals(":")) {
                         // 打印出错信息
-                        System.out.printf("Line %d:不能单独使用:(引号)\n",LL+1);
+                        System.out.printf("Line %d:不能单独使用:(引号)\n", LL + 1);
                         // 停止编译
                         System.exit(0);
                     } else {
-                        return new Token(WORD.get(A.toString()));
+                        return new Token(LL + 1, WORD.get(A.toString()));
                     }
                 } else if (WORD.containsKey(String.valueOf(CH))) { //首字符为单字运算符/单字界符
-                    Token token = new Token(WORD.get(String.valueOf(CH)));
-                    if(CH != '.') getCh(); //避免out of range
+                    Token token = new Token(LL + 1, WORD.get(String.valueOf(CH)));
+                    if (CH != '.') getCh(); //避免out of range
                     return token;
                 } else {
                     // 打印出错信息
-                    System.out.printf("Line %d:出现非法字符\n",LL+1);
+                    System.out.printf("Line %d:出现非法字符\n", LL + 1);
                     // 停止编译
                     System.exit(0);
                 }
@@ -153,17 +149,13 @@ public class LexicalAnalyzer {
         if ((CC + 1) >= Line.length()) { //缓冲区无字符，判断源程序是否结束
             if ((LL + 1) < Row) { //源程序未结束
                 if (sourceByRow[LL + 1].length() <= Column) { //源程序一行的字符数未超过允许的最多字符数Column
-                    do {
-                        LL++;
-                        CC = -1;
-                        Line = sourceByRow[LL];
-                        System.out.println(Line);
-                    }while (Line.equals(""));
-                    CH = '\0';
-                    return;
+                    LL++;
+                    CC = -1;
+                    Line = sourceByRow[LL] + "\0";
+                    System.out.println(Line);
                 } else {
                     // 打印出错信息
-                    System.out.printf("Line %d:源程序中一行最多允许%d个字符\n%n", LL+1,Column);
+                    System.out.printf("Line %d:源程序中一行最多允许%d个字符\n%n", LL + 1, Column);
                     // 停止编译
                     System.exit(0);
                 }
