@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ui.Controller">
+<BorderPane prefHeight="600.0" prefWidth="851.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ui.Controller">
    <left>
       <TextArea fx:id="source" prefHeight="328.0" prefWidth="407.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
@@ -17,18 +24,22 @@
       </TextArea>
    </left>
    <bottom>
-      <TextArea fx:id="grammar" editable="false" prefHeight="182.0" prefWidth="936.0" BorderPane.alignment="CENTER">
+      <TextArea fx:id="grammar" editable="false" prefHeight="182.0" prefWidth="798.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </BorderPane.margin>
+         <font>
+            <Font size="16.0" />
+         </font>
       </TextArea>
    </bottom>
    <right>
       <TableView fx:id="lexical" prefHeight="400.0" prefWidth="288.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="row" prefWidth="59.0" text="行" />
-          <TableColumn fx:id="type" minWidth="1.4000244140625" prefWidth="118.0" text="类型" />
-            <TableColumn fx:id="value" minWidth="0.0" prefWidth="94.0" text="值" />
+          <TableColumn fx:id="Row" prefWidth="47.20001220703125" text="ROW" />
+          <TableColumn fx:id="Sym" minWidth="1.4000244140625" prefWidth="92.00011825561523" text="SYM" />
+            <TableColumn fx:id="Id" minWidth="0.0" prefWidth="77.599853515625" text="ID" />
+            <TableColumn fx:id="Num" minWidth="0.0" prefWidth="52.80018615722656" text="NUM" />
         </columns>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -38,12 +49,12 @@
    <center>
       <VBox alignment="CENTER" prefHeight="348.0" prefWidth="227.0" spacing="50.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="lexicalAnalysis" mnemonicParsing="false" onAction="#analysis" prefHeight="50.0" prefWidth="130.0" text="词法分析">
+            <Button fx:id="lexicalParserBtn" mnemonicParsing="false" onAction="#lexicalParser" prefHeight="50.0" prefWidth="130.0" text="词法分析">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
             </Button>
-            <Button fx:id="grammarAnalysis" mnemonicParsing="false" prefHeight="50.0" prefWidth="130.0" text="语法分析" />
+            <Button fx:id="grammarParserBtn" mnemonicParsing="false" onAction="#grammarParser" prefHeight="50.0" prefWidth="130.0" text="语法分析" />
          </children>
       </VBox>
    </center>
