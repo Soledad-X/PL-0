@@ -4,20 +4,35 @@ import java.io.*;
 
 public class FileUtil {
     /**
-     * 一次性读取文件的所有内容，以字符串形式输出
-     * @param file 对应读取路径的File对象
-     * @return 字符串
+     * 读取源程序文件的方法
+     *
+     * @param fileName 源程序文件路径
+     * @return 返回读入的文件内容字符串
      */
-    public static String readFile(File file) throws IOException{
-        if (file != null && file.canRead()){
-            byte[] bytes = new byte[(int) file.length()];
-            FileInputStream fileInputStream = new FileInputStream(file);
-            fileInputStream.read(bytes);
-            String content = new String(bytes,"UTF-8");
-            fileInputStream.close();
-            return content;
+    public static String readFileContent(String fileName) {
+        File file = new File(fileName);
+        BufferedReader reader = null;
+        StringBuilder fileStringBuffer = new StringBuilder();
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempStr;
+            while ((tempStr = reader.readLine()) != null) {
+                fileStringBuffer.append(tempStr).append("\n");
+            }
+            reader.close();
+            return fileStringBuffer.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
-        return "";
+        return fileStringBuffer.toString();
     }
 
     /**
