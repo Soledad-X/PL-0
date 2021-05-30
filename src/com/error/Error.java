@@ -3,7 +3,7 @@ package com.error;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PL0Error {
+public class Error {
     private static final Map<Integer, String> error;
     static {
         error = new HashMap<>();

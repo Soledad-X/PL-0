@@ -1,4 +1,4 @@
-package com.PL0;
+package com.pl0;
 
 import com.entity.Token;
 
@@ -62,6 +62,10 @@ public class LexicalAnalyzer {
         WORD.put(",", "comma");
         WORD.put(";", "semicolon");
         WORD.put(".", "period");
+    }
+
+    public int getLL() {
+        return LL;
     }
 
     /**
@@ -146,13 +150,17 @@ public class LexicalAnalyzer {
      * 获取下一个字符CH
      */
     private void getCh() { //判断缓冲区是否有字符
-        if (CC == -1 || (CC + 1) >= Line.length()) { //缓冲区无字符，判断源程序是否结束
+        if ((CC + 1) >= Line.length()) { //缓冲区无字符，判断源程序是否结束
             if ((LL + 1) < Row) { //源程序未结束
-                if (sourceByRow[LL + 1].length() <= Column) { // 源程序一行的字符数未超过允许的最多字符数Column
-                    LL++;
-                    CC = -1;
-                    Line = sourceByRow[LL];
-                    System.out.println(Line);
+                if (sourceByRow[LL + 1].length() <= Column) { //源程序一行的字符数未超过允许的最多字符数Column
+                    do {
+                        LL++;
+                        CC = -1;
+                        Line = sourceByRow[LL];
+                        System.out.println(Line);
+                    }while (Line.equals(""));
+                    CH = '\0';
+                    return;
                 } else {
                     // 打印出错信息
                     System.out.printf("Line %d:源程序中一行最多允许%d个字符\n%n", LL+1,Column);

@@ -1,8 +1,8 @@
 package com.entity;
 
 public class Code {
-    private String function;    //功能码
-    private Integer levelDifference; //层次查
+    private final String function;    //功能码
+    private final Integer levelDifference; //层次查
     private Integer addressOffset;
 
     public Code(String function, Integer levelDifference, Integer addressOffset) {
@@ -15,16 +15,8 @@ public class Code {
         return function;
     }
 
-    public void setFunction(String function) {
-        this.function = function;
-    }
-
     public Integer getLevelDifference() {
         return levelDifference;
-    }
-
-    public void setLevelDifference(Integer levelDifference) {
-        this.levelDifference = levelDifference;
     }
 
     public Integer getAddressOffset() {

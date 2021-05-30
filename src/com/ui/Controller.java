@@ -1,7 +1,7 @@
-package com.UI;
+package com.ui;
 
 import com.entity.Token;
-import com.Utils.FileUtil;
+import com.utils.FileUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

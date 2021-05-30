@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.UI.Controller">
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ui.Controller">
    <left>
       <TextArea fx:id="source" prefHeight="328.0" prefWidth="407.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
