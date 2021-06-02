@@ -1,5 +1,6 @@
 package com.ui;
 
+import com.entity.Code;
 import com.entity.Token;
 import com.pl0.GrammarParser;
 import com.utils.FileUtil;
@@ -36,9 +37,17 @@ public class Controller {
             if(!source.getText().isEmpty()) {
                 GrammarParser PL0 = new GrammarParser(source.getText());
                 PL0.pl0();
-                if(PL0.getErrors().size() == 0) grammar.setText("编译成功");
+                if(PL0.getErrors().size() == 0) {
+                    grammar.clear();
+                    grammar.setText("编译成功\n");
+                    ArrayList<Code> codes = PL0.getCodes();
+                    for(Code code : codes) {
+                        grammar.setText(grammar.getText() + code.toString() + "\n");
+                    }
+                }
                 else {
                     grammar.clear();
+                    grammar.setText("编译失败\n");
                     ArrayList<String> errors = PL0.getErrors();
                     for(String error : errors){
                         grammar.setText(grammar.getText() + error + "\n");
