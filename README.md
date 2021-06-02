@@ -62,7 +62,7 @@ PL/0编译程序的简单实现
 
 ![image-20210602085544509](https://gitee.com/soledad-x/pic-go/raw/master/Gitee图床/PL0项语法描述图.png)
 
-![image-20210602085634215](https://gitee.com/soledad-x/pic-go/raw/master/Gitee图床/PL0因子语法描述图)
+![image-20210602085634215](https://gitee.com/soledad-x/pic-go/raw/master/Gitee图床/PL0因子语法描述图.png)
 
 ## PL/0文法的EBNF表示
 
